@@ -308,7 +308,7 @@
     </footer>
   </div>
 
-  <!-- MODAL 1: GASTOS COTIDIANOS (CRUD) -->
+  <!-- MODAL 1: GASTOS COTIDIANOS (CRUD COM FREQUÊNCIAS DINÂMICAS) -->
   <div id="modal-gastos" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-2xl border border-cyan-500/60 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-cyan-900/50 pb-3">
@@ -321,6 +321,7 @@
 
       <form id="form-gasto" onsubmit="saveGastoItem(event)" class="bg-purple-950/70 p-4 rounded-xl border border-purple-800 space-y-3">
         <input type="hidden" id="gasto-id">
+        
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-purple-200 mb-1">Nome do Gasto</label>
@@ -331,18 +332,51 @@
             <input type="number" step="0.01" id="gasto-valor" required placeholder="0.00" class="w-full bg-purple-900/60 border border-purple-700 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400">
           </div>
         </div>
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-purple-200 mb-1">Frequência</label>
-            <select id="gasto-freq" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1.5 text-xs text-white outline-none">
-              <option value="diario">Diário (Dias úteis)</option>
+            <select id="gasto-freq" onchange="handleFrequencyChange()" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1.5 text-xs text-white outline-none">
+              <option value="diario_uteis">Diário (Dias úteis)</option>
+              <option value="diario_todos">Diário (Todos os dias)</option>
               <option value="semanal">Semanal (1x por semana)</option>
               <option value="4semanas">A cada 4 semanas (1x/mês)</option>
+              <option value="cada_2_dias">Um dia sim, um dia não (A cada 2 dias)</option>
+              <option value="personalizado">Personalizado (A cada X dias)</option>
             </select>
           </div>
           <div>
             <label class="block text-xs font-semibold text-purple-200 mb-1">Descrição</label>
             <input type="text" id="gasto-desc" placeholder="Ex: R$20/dia" class="w-full bg-purple-900/60 border border-purple-700 rounded px-3 py-1.5 text-xs text-white outline-none">
+          </div>
+        </div>
+
+        <!-- CAMPOS DINÂMICOS DESBLOQUEADOS CONFORME A FREQUÊNCIA -->
+        <div id="dynamic-freq-inputs" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 hidden">
+          <!-- Campo Dia da Semana (Para Frequência Semanal) -->
+          <div id="field-day-of-week" class="hidden">
+            <label class="block text-xs font-semibold text-cyan-300 mb-1">Dia da Semana</label>
+            <select id="gasto-day-of-week" class="w-full bg-purple-900/80 border border-cyan-500/50 rounded px-2.5 py-1.5 text-xs text-white outline-none">
+              <option value="1">Segunda-feira</option>
+              <option value="2">Terça-feira</option>
+              <option value="3">Quarta-feira</option>
+              <option value="4">Quinta-feira</option>
+              <option value="5" selected>Sexta-feira</option>
+              <option value="6">Sábado</option>
+              <option value="0">Domingo</option>
+            </select>
+          </div>
+
+          <!-- Campo Intervalo em dias (Para Personalizado) -->
+          <div id="field-interval-days" class="hidden">
+            <label class="block text-xs font-semibold text-cyan-300 mb-1">Intervalo em dias</label>
+            <input type="number" min="1" id="gasto-custom-interval" placeholder="Ex: 5, 10, 40" class="w-full bg-purple-900/80 border border-cyan-500/50 rounded px-3 py-1.5 text-xs text-white outline-none">
+          </div>
+
+          <!-- Campo Data de Início / Dia Inicial (Para Mensal, 2 em 2 dias ou Personalizado) -->
+          <div id="field-start-date" class="hidden">
+            <label class="block text-xs font-semibold text-cyan-300 mb-1" id="lbl-start-date">Data / Dia de Início</label>
+            <input type="date" id="gasto-start-date" class="w-full bg-purple-900/80 border border-cyan-500/50 rounded px-2.5 py-1.5 text-xs text-white outline-none">
           </div>
         </div>
 
@@ -468,7 +502,7 @@
     </div>
   </div>
 
-  <!-- SCRIPT JS COMPLETO COM ESTADO DINÂMICO E REAGENTE -->
+  <!-- SCRIPT JS COMPLETO COM TODAS AS REGRAS E CALCULOS REAGENTES -->
   <script>
     let appState = {
       currentYear: new Date().getFullYear(),
@@ -553,6 +587,7 @@
           const formattedDate = `${dayNames[dayOfWeek]} - ${String(dayNum).padStart(2, '0')}/${String(monthNum).padStart(2, '0')}`;
 
           weeks[w].push({
+            dateObj: new Date(dateObj),
             dayOfMonth: dayNum,
             dayOfWeek: dayOfWeek,
             dateStr: formattedDate
@@ -563,18 +598,21 @@
       return weeks;
     }
 
-    // CÁLCULO E LÓGICA DE PRIORIDADE DINÂMICA
+    // CÁLCULO DE FREQUÊNCIAS FLEXÍVEIS E DE ALOCAÇÃO DE PRIORIDADES
     function calculateAllocations() {
       const weeksData = generateMonthWeeks(appState.currentYear, appState.currentMonth);
       const monthKey = getMonthKey();
       const savedEntries = appState.entries[monthKey] || {};
 
-      // 1. Calcular trava total dos gastos PRIORITÁRIOS do mês
+      // 1. Trava dos Gastos Prioritários no Mês
       let metaGastosPrioritariosMes = 0;
       appState.expenses.forEach(g => {
         if (g.priority !== false) {
-          if (g.type === 'diario') metaGastosPrioritariosMes += g.val * 20;
+          if (g.type === 'diario_uteis') metaGastosPrioritariosMes += g.val * 20;
+          else if (g.type === 'diario_todos') metaGastosPrioritariosMes += g.val * 28;
           else if (g.type === 'semanal') metaGastosPrioritariosMes += g.val * 4;
+          else if (g.type === 'cada_2_dias') metaGastosPrioritariosMes += g.val * 14;
+          else if (g.type === 'personalizado' && g.customInterval) metaGastosPrioritariosMes += g.val * Math.floor(28 / g.customInterval);
           else metaGastosPrioritariosMes += g.val;
         }
       });
@@ -600,14 +638,47 @@
           totalEntradasMes += entrada;
           totalAcumuladoEntradasTrabalho += entrada;
 
-          // Gastos dinâmicos por dia
+          // Cálculo individual por gasto conforme a frequência e data selecionada
           const expenseValues = {};
           appState.expenses.forEach(g => {
-            let val = 0;
-            if (g.type === 'diario' && dayInfo.dayOfWeek >= 1 && dayInfo.dayOfWeek <= 5) val = g.val;
-            else if (g.type === 'semanal' && dayInfo.dayOfWeek === 5) val = g.val;
-            else if (g.type === '4semanas' && dayInfo.dayOfWeek === 5 && dayInfo.dayOfMonth >= 20) val = g.val;
-            expenseValues[g.id] = val;
+            let appliesToday = false;
+
+            if (g.type === 'diario_uteis') {
+              appliesToday = dayInfo.dayOfWeek >= 1 && dayInfo.dayOfWeek <= 5;
+            } else if (g.type === 'diario_todos') {
+              appliesToday = true;
+            } else if (g.type === 'semanal') {
+              const targetDay = parseInt(g.dayOfWeek !== undefined ? g.dayOfWeek : 5);
+              appliesToday = dayInfo.dayOfWeek === targetDay;
+            } else if (g.type === '4semanas') {
+              if (g.startDate) {
+                const sDate = new Date(g.startDate + 'T00:00:00');
+                appliesToday = dayInfo.dateObj.getDate() === sDate.getDate();
+              } else {
+                appliesToday = dayInfo.dayOfWeek === 5 && dayInfo.dayOfMonth >= 20;
+              }
+            } else if (g.type === 'cada_2_dias') {
+              if (g.startDate) {
+                const sDate = new Date(g.startDate + 'T00:00:00');
+                const diffTime = dayInfo.dateObj - sDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                appliesToday = diffDays >= 0 && diffDays % 2 === 0;
+              } else {
+                appliesToday = dayInfo.dayOfMonth % 2 !== 0;
+              }
+            } else if (g.type === 'personalizado') {
+              const interval = parseInt(g.customInterval) || 1;
+              if (g.startDate) {
+                const sDate = new Date(g.startDate + 'T00:00:00');
+                const diffTime = dayInfo.dateObj - sDate;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+                appliesToday = diffDays >= 0 && diffDays % interval === 0;
+              } else {
+                appliesToday = dayInfo.dayOfMonth % interval === 0;
+              }
+            }
+
+            expenseValues[g.id] = appliesToday ? g.val : 0;
           });
 
           // Dinheiro livre
@@ -615,7 +686,7 @@
           if (entrada >= recConfig.minVal2) livreReserva = recConfig.tier2Val;
           else if (entrada >= recConfig.minVal1) livreReserva = recConfig.tier1Val;
 
-          // Trava prioritária do mês
+          // Regra de Trava Prioritária
           const prioridadesMesGarantidas = totalAcumuladoEntradasTrabalho >= metaGastosPrioritariosMes;
           const somaGastosDia = Object.values(expenseValues).reduce((a, b) => a + b, 0);
 
@@ -684,7 +755,7 @@
           </div>
           <div class="text-purple-200 text-xs font-bold truncate mt-1">${g.name}</div>
           <div class="text-base font-extrabold text-white my-1">R$ ${g.val.toFixed(2)}</div>
-          <div class="text-[10px] text-purple-300/70 truncate">${g.type}</div>
+          <div class="text-[10px] text-purple-300/70 truncate">${g.desc || g.type}</div>
         `;
         container.appendChild(card);
       });
@@ -753,14 +824,14 @@
       renderTable();
     }
 
-    // RENDEREIZAÇÃO 100% DINÂMICA DA TABELA (COLUNAS GERADAS SOB DEMANDA)
+    // TABELA SEMANAL DINÂMICA
     function renderTable() {
       const { processedWeeks, sortedMetas } = calculateAllocations();
       const weekData = processedWeeks[appState.currentWeekNum] || [];
       const monthKey = getMonthKey();
       const isLocked = !!(appState.lockedWeeks[monthKey] && appState.lockedWeeks[monthKey][appState.currentWeekNum]);
 
-      // Monta <thead> totalmente dinâmico
+      // Cabeçalho Dinâmico
       const theadRow = document.getElementById('table-header-row');
       let headerHTML = `
         <th class="p-2.5">Dia</th>
@@ -779,7 +850,7 @@
 
       theadRow.innerHTML = headerHTML;
 
-      // Monta <tbody>
+      // Corpo Dinâmico
       const tbody = document.getElementById('table-body');
       tbody.innerHTML = '';
 
@@ -829,7 +900,7 @@
         tbody.appendChild(tr);
       });
 
-      // Monta <tfoot> (Totais da Semana)
+      // Rodapé Dinâmico
       const tfoot = document.getElementById('table-footer-row');
       let footHTML = `
         <td class="p-2.5">TOTAL SEMANA</td>
@@ -931,8 +1002,10 @@
       let total = 0;
       appState.expenses.forEach(g => {
         let approxMensal = g.val;
-        if (g.type === 'diario') approxMensal = g.val * 20;
+        if (g.type === 'diario_uteis') approxMensal = g.val * 20;
+        if (g.type === 'diario_todos') approxMensal = g.val * 28;
         if (g.type === 'semanal') approxMensal = g.val * 4;
+        if (g.type === 'cada_2_dias') approxMensal = g.val * 14;
 
         total += approxMensal;
 
@@ -1044,15 +1117,51 @@
       });
     }
 
-    // MODAL GASTOS COTIDIANOS
+    // CONTROLE E LÓGICA DO MODAL GASTOS COTIDIANOS
     function openGastosModal() {
       renderGastosCRUDList();
+      handleFrequencyChange();
       document.getElementById('modal-gastos').classList.remove('hidden');
     }
+    
     function closeGastosModal() {
       document.getElementById('modal-gastos').classList.add('hidden');
       cancelEditGasto();
     }
+
+    function handleFrequencyChange() {
+      const freq = document.getElementById('gasto-freq').value;
+      const dynamicContainer = document.getElementById('dynamic-freq-inputs');
+      const fDayOfWeek = document.getElementById('field-day-of-week');
+      const fIntervalDays = document.getElementById('field-interval-days');
+      const fStartDate = document.getElementById('field-start-date');
+      const lblStartDate = document.getElementById('lbl-start-date');
+
+      // Ocultar tudo inicialmente
+      fDayOfWeek.classList.add('hidden');
+      fIntervalDays.classList.add('hidden');
+      fStartDate.classList.add('hidden');
+      dynamicContainer.classList.add('hidden');
+
+      if (freq === 'semanal') {
+        dynamicContainer.classList.remove('hidden');
+        fDayOfWeek.classList.remove('hidden');
+      } else if (freq === '4semanas') {
+        dynamicContainer.classList.remove('hidden');
+        fStartDate.classList.remove('hidden');
+        lblStartDate.innerText = 'Dia de Início / Vencimento';
+      } else if (freq === 'cada_2_dias') {
+        dynamicContainer.classList.remove('hidden');
+        fStartDate.classList.remove('hidden');
+        lblStartDate.innerText = 'Data de Início do Ciclo';
+      } else if (freq === 'personalizado') {
+        dynamicContainer.classList.remove('hidden');
+        fIntervalDays.classList.remove('hidden');
+        fStartDate.classList.remove('hidden');
+        lblStartDate.innerText = 'Data de Início do Ciclo';
+      }
+    }
+
     function renderGastosCRUDList() {
       const list = document.getElementById('gastos-crud-list');
       list.innerHTML = '';
@@ -1064,7 +1173,7 @@
           <div>
             <span class="font-bold text-white text-xs">${g.name}</span>
             <span class="text-cyan-400 font-bold ml-2">R$ ${g.val.toFixed(2)}</span>
-            <span class="text-purple-300 text-[10px] block">Tipo: ${g.type} (${g.desc || ''})</span>
+            <span class="text-purple-300 text-[10px] block">Freq: ${g.type} ${g.customInterval ? `(a cada ${g.customInterval} dias)` : ''}</span>
           </div>
           <div class="flex items-center gap-2">
             <button onclick="editGastoItem('${g.id}')" class="p-1 text-cyan-400 hover:text-white"><i class="fa-solid fa-pen-to-square"></i></button>
@@ -1074,6 +1183,7 @@
         list.appendChild(item);
       });
     }
+
     function saveGastoItem(e) {
       e.preventDefault();
       const id = document.getElementById('gasto-id').value;
@@ -1082,12 +1192,24 @@
       const type = document.getElementById('gasto-freq').value;
       const desc = document.getElementById('gasto-desc').value;
 
+      const dayOfWeek = document.getElementById('gasto-day-of-week').value;
+      const customInterval = document.getElementById('gasto-custom-interval').value;
+      const startDate = document.getElementById('gasto-start-date').value;
+
+      const gastoObj = {
+        id: id || ('g_' + Date.now()),
+        name, val, type, desc,
+        priority: true,
+        dayOfWeek,
+        customInterval,
+        startDate
+      };
+
       if (id) {
         const idx = appState.expenses.findIndex(g => g.id === id);
-        if (idx !== -1) appState.expenses[idx] = { ...appState.expenses[idx], name, val, type, desc };
+        if (idx !== -1) appState.expenses[idx] = gastoObj;
       } else {
-        const newId = 'g_' + Date.now();
-        appState.expenses.push({ id: newId, name, val, type, desc, priority: true });
+        appState.expenses.push(gastoObj);
       }
 
       saveLocalStorage();
@@ -1095,6 +1217,7 @@
       renderGastosCRUDList();
       renderApp();
     }
+
     function editGastoItem(id) {
       const g = appState.expenses.find(item => item.id === id);
       if (!g) return;
@@ -1103,7 +1226,14 @@
       document.getElementById('gasto-valor').value = g.val;
       document.getElementById('gasto-freq').value = g.type;
       document.getElementById('gasto-desc').value = g.desc || '';
+      
+      if (g.dayOfWeek) document.getElementById('gasto-day-of-week').value = g.dayOfWeek;
+      if (g.customInterval) document.getElementById('gasto-custom-interval').value = g.customInterval;
+      if (g.startDate) document.getElementById('gasto-start-date').value = g.startDate;
+
+      handleFrequencyChange();
     }
+
     function deleteGastoItem(id) {
       if (confirm("Remover este gasto cotidianamente cadastrado?")) {
         appState.expenses = appState.expenses.filter(g => g.id !== id);
@@ -1112,9 +1242,11 @@
         renderApp();
       }
     }
+
     function cancelEditGasto() {
       document.getElementById('form-gasto').reset();
       document.getElementById('gasto-id').value = '';
+      handleFrequencyChange();
     }
 
     // MODAL RECOMPENSA
@@ -1184,6 +1316,7 @@
         list.appendChild(item);
       });
     }
+
     function moveMetaPriority(index, direction) {
       const targetIndex = index + direction;
       if (targetIndex < 0 || targetIndex >= appState.metas.length) return;
@@ -1198,6 +1331,7 @@
       renderMetasCRUDList();
       renderApp();
     }
+
     function saveMetaItem(e) {
       e.preventDefault();
       const id = document.getElementById('meta-id').value;
@@ -1220,6 +1354,7 @@
       renderMetasCRUDList();
       renderApp();
     }
+
     function editMetaItem(id) {
       const m = appState.metas.find(item => item.id === id);
       if (!m) return;
@@ -1229,6 +1364,7 @@
       document.getElementById('meta-data').value = m.deadline || '';
       document.getElementById('meta-icone').value = m.icon || 'fa-bullseye';
     }
+
     function deleteMetaItem(id) {
       if (confirm("Remover esta meta permanentemente?")) {
         appState.metas = appState.metas.filter(m => m.id !== id);
@@ -1238,6 +1374,7 @@
         renderApp();
       }
     }
+
     function cancelEditMeta() {
       document.getElementById('form-meta').reset();
       document.getElementById('meta-id').value = '';
