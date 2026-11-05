@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Plano Financeiro - Cyberpunk Edition</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts & Font Awesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            bg: '#090514',
+                            card: 'rgba(23, 14, 41, 0.75)',
+                            border: 'rgba(147, 51, 234, 0.3)',
+                            purple: '#a855f7',
+                            pink: '#ec4899',
+                            cyan: '#06b6d4',
+                            green: '#22c55e',
+                            yellow: '#eab308'
+                        }
+                    },
+                    fontFamily: {
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        rajdhani: ['Rajdhani', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #090514;
+            background-image: 
+                radial-gradient(circle at 12% 18%, rgba(168, 85, 247, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 88% 82%, rgba(6, 182, 212, 0.15) 0%, transparent 40%);
+            color: #f3e8ff;
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+        }
+
+        .glass-panel {
+            background: rgba(23, 14, 41, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(147, 51, 234, 0.3);
+        }
+
+        .neon-border-purple {
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.35);
+            border: 1px solid rgba(168, 85, 247, 0.6);
+        }
+
+        .neon-border-cyan {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.35);
+            border: 1px solid rgba(6, 182, 212, 0.6);
+        }
+
+        .neon-text-purple {
+            text-shadow: 0 0 10px rgba(168, 85, 247, 0.8);
+        }
+
+        .neon-text-green {
+            text-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090514;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #3b1d7a;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a855f7;
+        }
+    </style>
+</head>
+<body class="p-3 md:p-6">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+
+        <!-- CABEÇALHO DO APLICATIVO -->
+        <header class="glass-panel p-5 rounded-2xl neon-border-purple flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-purple-950/70 rounded-xl border border-purple-500/50 text-purple-400">
+                    <i class="fa-solid fa-crown text-2xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-orbitron font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-400 neon-text-purple">
+                        Meu Plano Financeiro
+                    </h1>
+                    <p class="text-xs md:text-sm text-purple-300/80 font-bold tracking-widest uppercase">
+                        TRABALHO • ORGANIZAÇÃO • CONQUISTAS
+                    </p>
+                </div>
+            </div>
+
+            <!-- NAVEGAÇÃO / CONTROLES DE MÊS E MODAIS -->
+            <div class="flex flex-wrap items-center gap-2.5 justify-end w-full lg:w-auto">
+                <div class="flex items-center gap-2 bg-purple-950/80 px-3 py-1.5 rounded-xl border border-purple-500/40">
+                    <i class="fa-solid fa-calendar-days text-cyan-400 text-xs"></i>
+                    <select id="month-select" onchange="changeMonthYear()" class="bg-transparent text-xs font-bold text-purple-200 outline-none cursor-pointer">
+                        <option value="0" class="bg-purple-950">Janeiro</option>
+                        <option value="1" class="bg-purple-950">Fevereiro</option>
+                        <option value="2" class="bg-purple-950">Março</option>
+                        <option value="3" class="bg-purple-950">Abril</option>
+                        <option value="4" class="bg-purple-950">Maio</option>
+                        <option value="5" class="bg-purple-950">Junho</option>
+                        <option value="6" class="bg-purple-950">Julho</option>
+                        <option value="7" class="bg-purple-950">Agosto</option>
+                        <option value="8" class="bg-purple-950">Setembro</option>
+                        <option value="9" class="bg-purple-950">Outubro</option>
+                        <option value="10" class="bg-purple-950">Novembro</option>
+                        <option value="11" class="bg-purple-950">Dezembro</option>
+                    </select>
+                    <input type="number" id="year-input" min="2024" max="2035" onchange="changeMonthYear()" class="bg-purple-900/60 text-xs font-bold text-cyan-300 border border-purple-600/60 rounded px-2 py-0.5 w-16 text-center outline-none">
+                </div>
+
+                <button onclick="openGastosModal()" class="px-3 py-2 bg-cyan-950/70 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/50 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-sliders"></i> Gastos
+                </button>
+
+                <button onclick="openRecompensaModal()" class="px-3 py-2 bg-yellow-950/70 hover:bg-yellow-900 text-yellow-300 border border-yellow-500/50 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-gift"></i> Recompensa
+                </button>
+
+                <button onclick="openMetasModal()" class="px-3 py-2 bg-purple-950/70 hover:bg-purple-900 text-purple-300 border border-purple-500/50 rounded-xl text-xs font-bold transition flex items-center gap-2">
+                    <i class="fa-solid fa-bullseye"></i> Metas & Prioridades
+                </button>
+
+                <button onclick="resetCurrentMonth()" class="px-3 py-2 bg-red-950/70 hover:bg-red-900 text-red-300 border border-red-500/50 rounded-xl text-xs font-bold transition" title="Resetar dados do mês">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- CARDS SUPERIORES: GASTOS COTIDIANOS (PRIORITÁRIO OU OPCIONAL) -->
+        <div id="cost-cards-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- Renderizado dinamicamente via JS -->
+        </div>
+
+        <!-- LAYOUT CENTRAL DA PÁGINA (TABELA SEMANAL + PAINEL DE METAS) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- ÁREA DA TABELA SEMANAL (8 COLUNAS) -->
+            <div class="lg:col-span-8 space-y-4">
+                
+                <!-- SELEÇÃO DE SEMANA -->
+                <div class="glass-panel p-3 rounded-xl flex items-center justify-between flex-wrap gap-2">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-week text-purple-400"></i>
+                        <span class="font-bold text-sm text-purple-200">Selecionar Semana:</span>
+                    </div>
+
+                    <div class="flex items-center gap-1.5 sm:gap-2">
+                        <button onclick="switchWeek(1)" id="btn-week-1" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition border">Semana 1</button>
+                        <button onclick="switchWeek(2)" id="btn-week-2" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition border">Semana 2</button>
+                        <button onclick="switchWeek(3)" id="btn-week-3" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition border">Semana 3</button>
+                        <button onclick="switchWeek(4)" id="btn-week-4" class="px-3.5 py-1.5 text-xs font-bold rounded-lg transition border">Semana 4</button>
+                    </div>
+                </div>
+
+                <!-- CONTAINER DA TABELA -->
+                <div class="glass-panel p-4 rounded-2xl neon-border-purple relative">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b border-purple-900/60">
+                        <div>
+                            <h2 id="week-title" class="text-xl font-bold font-orbitron text-purple-300">Semana 1</h2>
+                            <p class="text-xs text-purple-300/70">Preencha apenas o valor ganho no Trabalho; os demais gastos e metas são distribuídos automaticamente.</p>
+                        </div>
+                        <button id="lock-btn" onclick="toggleWeekLock()" class="px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 border transition">
+                            <i id="lock-icon" class="fa-solid fa-lock-open"></i>
+                            <span id="lock-text">Encerrar Semana</span>
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs border-collapse">
+                            <thead>
+                                <tr id="table-header-row" class="bg-purple-950/80 text-purple-200 border-b border-purple-800">
+                                    <!-- Renderizado dinamicamente com base nos gastos e metas -->
+                                </tr>
+                            </thead>
+                            <tbody id="table-body" class="divide-y divide-purple-900/40">
+                                <!-- Preenchido dinamicamente com 7 dias da semana (Seg a Dom) -->
+                            </tbody>
+                            <tfoot>
+                                <tr id="table-footer-row" class="bg-purple-950/90 font-bold border-t-2 border-purple-600 text-purple-200">
+                                    <!-- Totais -->
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+
+                    <div id="locked-banner" class="hidden mt-3 p-2.5 bg-red-950/50 border border-red-500/50 rounded-xl text-red-300 text-xs flex items-center gap-2">
+                        <i class="fa-solid fa-lock text-sm"></i>
+                        <span>Esta semana foi <strong>Encerrada</strong>. Lançamentos bloqueados contra edições.</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- PAINEL DIREITO: METAS E RESUMO (4 COLUNAS) -->
+            <div class="lg:col-span-4 space-y-4">
+                
+                <!-- PAINEL MINHAS METAS -->
+                <div class="glass-panel p-4 rounded-2xl neon-border-cyan space-y-4">
+                    <div class="flex items-center justify-between border-b border-cyan-900/50 pb-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-bullseye text-cyan-400"></i>
+                            <h2 class="font-bold font-orbitron text-cyan-300 text-base">Minhas Metas</h2>
+                        </div>
+                        <button onclick="openMetasModal()" class="text-xs text-purple-300 hover:text-white flex items-center gap-1 font-semibold">
+                            <i class="fa-solid fa-up-down-left-right text-[10px]"></i> Reordenar Prioridades
+                        </button>
+                    </div>
+
+                    <!-- BOX DE AVISO DE GARANTIA DOS GASTOS MENSAIS -->
+                    <div id="priorities-guarantee-box" class="p-3 rounded-xl border text-xs space-y-1">
+                        <!-- JS renderiza o status da trava mensal de prioridade -->
+                    </div>
+
+                    <div id="metas-progress-cards" class="space-y-3">
+                        <!-- JS Renderiza barras de progresso das metas -->
+                    </div>
+                </div>
+
+                <!-- PAINEL RESUMO DOS CUSTOS MENSAIS -->
+                <div class="glass-panel p-4 rounded-2xl border border-purple-500/30 space-y-3">
+                    <div class="flex items-center justify-between border-b border-purple-900/60 pb-2">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-calculator text-purple-400"></i>
+                            <h3 class="font-bold text-purple-200 text-sm">Resumo dos Custos (Estimativa Mensal)</h3>
+                        </div>
+                        <button onclick="openGastosModal()" class="text-xs text-cyan-400 hover:text-white font-semibold">Editar Gastos</button>
+                    </div>
+
+                    <div id="gastos-summary-list" class="space-y-1.5 text-xs">
+                        <!-- Renderizado via JS -->
+                    </div>
+
+                    <div class="pt-2 border-t border-purple-900/70 flex justify-between items-center font-bold text-xs">
+                        <span class="text-gray-300">Total Custos Estimados</span>
+                        <span id="gastos-summary-total" class="text-yellow-400 font-extrabold text-sm">R$ 0,00</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- PAINEL INFERIOR: ACOMPANHAMENTO GERAL E DÉFICIT SEMANAL -->
+        <section class="glass-panel p-5 rounded-2xl neon-border-purple space-y-6">
+            <div class="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-purple-900/60 pb-3 gap-2">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-chart-line text-purple-400 text-xl"></i>
+                    <div>
+                        <h2 class="text-lg font-bold font-orbitron text-purple-200">Acompanhamento Geral de Desempenho & Déficit</h2>
+                        <p class="text-xs text-purple-300/70">Acompanhe o que faltou em cada semana e como compensar nas semanas seguintes</p>
+                    </div>
+                </div>
+
+                <div class="bg-purple-950/80 px-4 py-2 rounded-xl border border-green-500/50 text-center w-full md:w-auto">
+                    <span class="text-[10px] text-gray-400 uppercase tracking-widest block font-bold">TOTAL ARRECADADO NO MÊS</span>
+                    <span id="grand-total-earned" class="text-2xl font-black text-green-400 neon-text-green font-orbitron">R$ 0,00</span>
+                </div>
+            </div>
+
+            <!-- CARDS DE DÉFICIT DAS 4 SEMANAS -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="weekly-deficit-cards">
+                <!-- JS Renderiza -->
+            </div>
+
+            <!-- GRÁFICO E DIAGNÓSTICO -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <div class="lg:col-span-7 bg-purple-950/40 p-4 rounded-xl border border-purple-800/50">
+                    <h3 class="text-xs font-bold text-purple-300 uppercase mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-column text-cyan-400"></i> COMPARATIVO SEMANAL (ENTRADAS REAIS VS META PREVISTA)
+                    </h3>
+                    <div class="h-56 relative">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-5 space-y-3">
+                    <div id="diagnostic-card" class="p-4 rounded-xl border space-y-2">
+                        <!-- JS Renderiza Recomendações e Diagnóstico -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="text-center py-2 text-xs text-purple-300/50 font-semibold tracking-wider">
+            "Disciplina hoje, conquista amanhã." • Meu Plano Financeiro Cyberpunk
+        </footer>
+    </div>
+
+    <!-- MODAL 1: CONFIGURAR GASTOS COTIDIANOS (CRUD) -->
+    <div id="modal-gastos" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel w-full max-w-xl rounded-2xl border border-cyan-500/60 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-cyan-900/50 pb-3">
+                <div class="flex items-center gap-2 text-cyan-300 font-bold text-lg font-orbitron">
+                    <i class="fa-solid fa-sliders"></i>
+                    <span>Configurar Gastos Cotidianos</span>
+                </div>
+                <button onclick="closeGastosModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="form-gasto" onsubmit="saveGastoItem(event)" class="bg-purple-950/70 p-4 rounded-xl border border-purple-800 space-y-3">
+                <input type="hidden" id="gasto-id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-purple-200 mb-1">Nome do Gasto</label>
+                        <input type="text" id="gasto-nome" required placeholder="Ex: Alimentação, Óleo, etc." class="w-full bg-purple-900/60 border border-purple-700 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-purple-200 mb-1">Valor Previsto (R$)</label>
+                        <input type="number" step="0.01" id="gasto-valor" required placeholder="0.00" class="w-full bg-purple-900/60 border border-purple-700 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-purple-200 mb-1">Frequência de Ocorrência</label>
+                        <select id="gasto-freq" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1.5 text-xs text-white outline-none">
+                            <option value="diario">Diário (Todos os dias úteis)</option>
+                            <option value="semanal">Semanal (1x por semana)</option>
+                            <option value="mensal">Mensal (1x a cada 4 semanas)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-purple-200 mb-1">Descrição / Detalhe</label>
+                        <input type="text" id="gasto-desc" placeholder="Ex: R$25/semana" class="w-full bg-purple-900/60 border border-purple-700 rounded px-3 py-1.5 text-xs text-white outline-none">
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="cancelEditGasto()" class="px-3 py-1.5 bg-gray-800 text-gray-300 rounded-lg text-xs hover:bg-gray-700">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-lg text-xs font-bold transition">Salvar Gasto</button>
+                </div>
+            </form>
+
+            <div class="space-y-2">
+                <h4 class="text-xs font-bold text-cyan-300 uppercase">Gastos Cadastrados</h4>
+                <div id="gastos-crud-list" class="divide-y divide-purple-900/50 max-h-52 overflow-y-auto">
+                    <!-- JS Renderiza Lista de Gastos Cadastrados -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL 2: CONFIGURAR RECOMPENSA (DINHEIRO LIVRE POR PERFORMANCE) -->
+    <div id="modal-recompensa" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel w-full max-w-md rounded-2xl border border-yellow-500/60 p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-yellow-900/50 pb-3">
+                <div class="flex items-center gap-2 text-yellow-300 font-bold text-lg font-orbitron">
+                    <i class="fa-solid fa-gift"></i>
+                    <span>Recompensa Diária (Dinheiro Livre)</span>
+                </div>
+                <button onclick="closeRecompensaModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <p class="text-xs text-purple-200">Defina o valor da sua recompensa em reserva diária com base na entrada atingida no trabalho no dia.</p>
+
+            <form onsubmit="saveRecompensaConfig(event)" class="space-y-4">
+                <div class="bg-purple-950/80 p-3.5 rounded-xl border border-purple-800 space-y-3">
+                    <h4 class="text-xs font-bold text-yellow-400 uppercase tracking-wider">Nível 1 (Performance Padrão)</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-purple-200 mb-1">Entrada Mínima (R$)</label>
+                            <input type="number" id="rec-val-min1" required min="0" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-purple-200 mb-1">Recompensa Livre (R$)</label>
+                            <input type="number" id="rec-val-1" required min="0" step="0.5" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1 text-xs text-yellow-300 font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-purple-950/80 p-3.5 rounded-xl border border-purple-800 space-y-3">
+                    <h4 class="text-xs font-bold text-green-400 uppercase tracking-wider">Nível 2 (Performance Alta)</h4>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-[11px] text-purple-200 mb-1">Entrada Mínima (R$)</label>
+                            <input type="number" id="rec-val-min2" required min="0" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1 text-xs text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] text-purple-200 mb-1">Recompensa Livre (R$)</label>
+                            <input type="number" id="rec-val-2" required min="0" step="0.5" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1 text-xs text-green-400 font-bold">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeRecompensaModal()" class="px-3 py-1.5 bg-gray-800 text-gray-300 rounded-lg text-xs">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 text-white font-bold rounded-lg text-xs transition">Salvar Recompensas</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL 3: GERENCIAR METAS & REORDENAR PRIORIDADES ▲ ▼ -->
+    <div id="modal-metas" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel w-full max-w-xl rounded-2xl border border-purple-500/60 p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-purple-900/50 pb-3">
+                <div class="flex items-center gap-2 text-purple-300 font-bold text-lg font-orbitron">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <span>Gerenciar Metas & Prioridades</span>
+                </div>
+                <button onclick="closeMetasModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <form id="form-meta" onsubmit="saveMetaItem(event)" class="bg-purple-950/70 p-4 rounded-xl border border-purple-800 space-y-3">
+                <input type="hidden" id="meta-id">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-purple-200 mb-1">Nome da Meta</label>
+                        <input type="text" id="meta-nome" required placeholder="Ex: Quitar a moto" class="w-full bg-purple-900/60 border border-purple-700 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-purple-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-purple-200 mb-1">Valor Alvo (R$)</label>
+                        <input type="number" step="0.01" id="meta-valor" required placeholder="2400.00" class="w-full bg-purple-900/60 border border-purple-700 rounded px-3 py-1.5 text-xs text-white outline-none focus:border-purple-400">
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-purple-200 mb-1">Data Limite</label>
+                        <input type="date" id="meta-data" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1.5 text-xs text-white outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-purple-200 mb-1">Ícone</label>
+                        <select id="meta-icone" class="w-full bg-purple-900/60 border border-purple-700 rounded px-2.5 py-1.5 text-xs text-white outline-none">
+                            <option value="fa-motorcycle">Moto / Veículo</option>
+                            <option value="fa-bus">Viagem / Passagem</option>
+                            <option value="fa-shield-halved">Reserva Extra</option>
+                            <option value="fa-trophy">Conquista / Sonho</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="cancelEditMeta()" class="px-3 py-1.5 bg-gray-800 text-gray-300 rounded-lg text-xs hover:bg-gray-700">Cancelar</button>
+                    <button type="submit" class="px-4 py-1.5 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold transition">Salvar Meta</button>
+                </div>
+            </form>
+
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-purple-300 uppercase">Ordem de Prioridade de Aporte</h4>
+                    <span class="text-[10px] text-gray-400">Use os botões ▲ ▼ para alterar quem recebe o dinheiro primeiro</span>
+                </div>
+                <div class="divide-y divide-purple-900/50 max-h-56 overflow-y-auto" id="metas-crud-list">
+                    <!-- JS Renderiza Metas com Botões ▲ ▼ -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÓGICA COMPLETA EM JAVASCRIPT -->
+    <script>
+        const DEFAULT_GASTOS = [
+            { id: 'g_alimentacao', name: 'Alimentação', val: 20, desc: '2 marmitas/dia (R$20)', type: 'diario', isPriority: true },
+            { id: 'g_gasolina', name: 'Gasolina', val: 25, desc: 'R$25/semana', type: 'semanal', isPriority: true },
+            { id: 'g_oleo', name: 'Óleo', val: 40, desc: 'R$40 a cada 4 sem', type: 'mensal', isPriority: true },
+            { id: 'g_cabelo', name: 'Cabelo', val: 65, desc: 'R$65 a cada 3 sem', type: 'mensal', isPriority: true },
+            { id: 'g_tabaco', name: 'Tabaco + Seda', val: 25, desc: 'R$25/mês', type: 'mensal', isPriority: true }
+        ];
+
+        const DEFAULT_RECOMPENSA_CONFIG = {
+            minVal1: 200,
+            tier1Val: 10,
+            minVal2: 400,
+            tier2Val: 20
+        };
+
+        const DEFAULT_METAS = [
+            { id: 'm_moto', name: 'Quitar a moto', targetVal: 2400, deadline: '2026-12-01', priority: 1, icon: 'fa-motorcycle', isReserva: false },
+            { id: 'm_brasilia', name: 'Viagem para Brasília', targetVal: 1200, deadline: '2026-12-05', priority: 2, icon: 'fa-bus', isReserva: false },
+            { id: 'm_reserva', name: 'Reserva Extra Diária', targetVal: 300, deadline: '2026-12-05', priority: 3, icon: 'fa-shield-halved', isReserva: true }
+        ];
+
+        let appState = {
+            currentYear: new Date().getFullYear(),
+            currentMonth: new Date().getMonth(),
+            currentWeekNum: 1,
+            gastos: JSON.parse(JSON.stringify(DEFAULT_GASTOS)),
+            metas: JSON.parse(JSON.stringify(DEFAULT_METAS)),
+            recompensaConfig: JSON.parse(JSON.stringify(DEFAULT_RECOMPENSA_CONFIG)),
+            entries: {},
+            lockedWeeks: {}
+        };
+
+        let chartInstance = null;
+        const formatBRL = (val) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val || 0);
+
+        window.onload = () => {
+            loadLocalStorage();
+            document.getElementById('month-select').value = appState.currentMonth;
+            document.getElementById('year-input').value = appState.currentYear;
+            renderApp();
+        };
+
+        function getMonthKey() {
+            return `${appState.currentYear}_${appState.currentMonth}`;
+        }
+
+        function loadLocalStorage() {
+            const saved = localStorage.getItem('cyber_finance_final_unified_v2');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    appState = { ...appState, ...parsed };
+                } catch (e) {
+                    console.error("Erro ao carregar dados salvos", e);
+                }
+            }
+        }
+
+        function saveLocalStorage() {
+            localStorage.setItem('cyber_finance_final_unified_v2', JSON.stringify(appState));
+        }
+
+        function resetCurrentMonth() {
+            if (confirm("Deseja realmente limpar todos os lançamentos do mês selecionado?")) {
+                const key = getMonthKey();
+                delete appState.entries[key];
+                delete appState.lockedWeeks[key];
+                saveLocalStorage();
+                renderApp();
+            }
+        }
+
+        function changeMonthYear() {
+            appState.currentMonth = parseInt(document.getElementById('month-select').value);
+            appState.currentYear = parseInt(document.getElementById('year-input').value);
+            appState.currentWeekNum = 1;
+            saveLocalStorage();
+            renderApp();
+        }
+
+        // GERADOR DAS 4 SEMANAS COM 7 DIAS CADA (SEGUNDA A DOMINGO)
+        function generateMonthWeeks(year, month) {
+            const weeks = { 1: [], 2: [], 3: [], 4: [] };
+            const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+            
+            const firstDayOfMonth = new Date(year, month, 1);
+            let firstMonday = new Date(firstDayOfMonth);
+            let dayOffset = (firstMonday.getDay() + 6) % 7; 
+            firstMonday.setDate(firstMonday.getDate() - dayOffset);
+
+            let currentPointer = new Date(firstMonday);
+
+            for (let w = 1; w <= 4; w++) {
+                for (let d = 0; d < 7; d++) {
+                    const dateObj = new Date(currentPointer);
+                    const dayOfWeek = dateObj.getDay();
+                    const dayNum = dateObj.getDate();
+                    const monthNum = dateObj.getMonth() + 1;
+                    const formattedDate = `${dayNames[dayOfWeek]} - ${String(dayNum).padStart(2, '0')}/${String(monthNum).padStart(2, '0')}`;
+
+                    weeks[w].push({
+                        dayOfMonth: dayNum,
+                        dayOfWeek: dayOfWeek,
+                        dateStr: formattedDate
+                    });
+                    currentPointer.setDate(currentPointer.getDate() + 1);
+                }
+            }
+            return weeks;
+        }
+
+        // ALGORITMO PRINCIPAL DE DISTRIBUIÇÃO E PRIORIDADE FINANCEIRA
+        function calculateAllocations() {
+            const weeksData = generateMonthWeeks(appState.currentYear, appState.currentMonth);
+            const monthKey = getMonthKey();
+            const savedEntries = appState.entries[monthKey] || {};
+
+            // 1. Calcular Custo Total dos Gastos PRIORITÁRIOS do Mês Inteiro
+            let metaGastosPrioritariosMes = 0;
+            appState.gastos.forEach(g => {
+                if (g.isPriority !== false) {
+                    if (g.type === 'diario') metaGastosPrioritariosMes += g.val * 20; // 20 dias uteis
+                    else if (g.type === 'semanal') metaGastosPrioritariosMes += g.val * 4;
+                    else metaGastosPrioritariosMes += g.val;
+                }
+            });
+
+            const sortedMetas = [...appState.metas].sort((a, b) => a.priority - b.priority);
+            const recConfig = appState.recompensaConfig || DEFAULT_RECOMPENSA_CONFIG;
+
+            let accumulatedMetaValues = {};
+            sortedMetas.forEach(m => accumulatedMetaValues[m.id] = 0);
+
+            let totalEntradasMes = 0;
+            let totalAcumuladoEntradasTrabalho = 0;
+            const processedWeeks = {};
+
+            [1, 2, 3, 4].forEach(w => {
+                processedWeeks[w] = [];
+                const daysInWeek = weeksData[w] || [];
+                const weekSaved = savedEntries[w] || [];
+
+                daysInWeek.forEach((dayInfo, idx) => {
+                    const daySaved = weekSaved[idx] || {};
+                    const entrada = parseFloat(daySaved.trabalho) || 0;
+                    totalEntradasMes += entrada;
+                    totalAcumuladoEntradasTrabalho += entrada;
+
+                    const dayOfWeek = dayInfo.dayOfWeek;
+
+                    // Gastos padrão por tipo de dia
+                    let costAlim = 0, costGas = 0, costOleo = 0;
+                    if (dayOfWeek >= 1 && dayOfWeek <= 5) {
+                        const gAlim = appState.gastos.find(g => g.id === 'g_alimentacao');
+                        if (gAlim) costAlim = gAlim.val;
+                    }
+                    if (dayOfWeek === 5) {
+                        const gGas = appState.gastos.find(g => g.id === 'g_gasolina');
+                        if (gGas) costGas = gGas.val;
+                    }
+                    if (dayOfWeek === 5 && dayInfo.dayOfMonth >= 20) {
+                        const gOleo = appState.gastos.find(g => g.id === 'g_oleo');
+                        if (gOleo) costOleo = gOleo.val;
+                    }
+
+                    // Dinheiro Livre Diário (Recompensa por Performance)
+                    let livreReserva = 0;
+                    if (entrada >= recConfig.minVal2) livreReserva = recConfig.tier2Val;
+                    else if (entrada >= recConfig.minVal1) livreReserva = recConfig.tier1Val;
+
+                    // REGRA CRÍTICA: Gastos prioritários do mês devem ser 100% garantidos no acumulado do mês!
+                    const prioridadesMesGarantidas = totalAcumuladoEntradasTrabalho >= metaGastosPrioritariosMes;
+                    
+                    // Excedente do dia liberado para Metas (somente se a trava mensal de prioridades foi superada)
+                    const disponivelParaMetas = prioridadesMesGarantidas ? Math.max(0, entrada - (costAlim + costGas + costOleo + livreReserva)) : 0;
+
+                    let saldoRestanteDia = disponivelParaMetas;
+                    const allocatedMetas = {};
+
+                    // Distribuição por ordem estrita de prioridade das Metas (▲ ▼)
+                    sortedMetas.forEach(m => {
+                        if (m.isReserva) {
+                            allocatedMetas[m.id] = livreReserva;
+                            accumulatedMetaValues[m.id] = (accumulatedMetaValues[m.id] || 0) + livreReserva;
+                        } else {
+                            let valAporte = 0;
+                            if (saldoRestanteDia > 0) {
+                                const quantoFaltaParaMeta = Math.max(0, m.targetVal - (accumulatedMetaValues[m.id] || 0));
+                                valAporte = Math.min(saldoRestanteDia, quantoFaltaParaMeta);
+                                saldoRestanteDia -= valAporte;
+                                accumulatedMetaValues[m.id] = (accumulatedMetaValues[m.id] || 0) + valAporte;
+                            }
+                            allocatedMetas[m.id] = valAporte;
+                        }
+                    });
+
+                    processedWeeks[w].push({
+                        dateStr: dayInfo.dateStr,
+                        trabalho: entrada,
+                        alimentacao: costAlim,
+                        gasolina: costGas,
+                        oleo: costOleo,
+                        livre: livreReserva,
+                        metas: allocatedMetas
+                    });
+                });
+            });
+
+            return {
+                weeksData,
+                processedWeeks,
+                totalEntradasMes,
+                accumulatedMetaValues,
+                sortedMetas,
+                metaGastosPrioritariosMes,
+                prioridadesMesGarantidas: totalEntradasMes >= metaGastosPrioritariosMes
+            };
+        }
+
+        function renderApp() {
+            renderCostCards();
+            renderWeekNavigation();
+            renderTable();
+            renderMetasSidebar();
+            renderCustosSummary();
+            renderDashboard();
+        }
+
+        function renderCostCards() {
+            const container = document.getElementById('cost-cards-container');
+            container.innerHTML = '';
+
+            appState.gastos.forEach(g => {
+                const isPrio = g.isPriority !== false;
+                const card = document.createElement('div');
+                card.className = `glass-panel p-3 rounded-xl border ${isPrio ? 'border-purple-500/50 shadow-[0_0_10px_rgba(168,85,247,0.2)]' : 'border-gray-700/50 opacity-60'} flex flex-col justify-between`;
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-[9px] uppercase font-bold px-2 py-0.5 rounded-full ${isPrio ? 'bg-green-950 text-green-400 border border-green-500/40' : 'bg-yellow-950 text-yellow-400 border border-yellow-500/40'}">
+                            ${isPrio ? 'Prioritário' : 'Opcional'}
+                        </span>
+                        <button onclick="toggleGastoPriority('${g.id}')" class="text-xs ${isPrio ? 'text-green-400 hover:text-green-200' : 'text-gray-400 hover:text-white'}" title="Alternar Prioridade">
+                            <i class="fa-solid ${isPrio ? 'fa-circle-check' : 'fa-circle'}"></i>
+                        </button>
+                    </div>
+                    <div class="text-purple-200 text-xs font-bold truncate mt-1">${g.name}</div>
+                    <div class="text-base font-extrabold text-white my-1">R$ ${g.val.toFixed(2)}</div>
+                    <div class="text-[10px] text-purple-300/70 truncate">${g.desc || ''}</div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function toggleGastoPriority(id) {
+            const g = appState.gastos.find(item => item.id === id);
+            if (g) {
+                g.isPriority = !(g.isPriority !== false);
+                saveLocalStorage();
+                renderApp();
+            }
+        }
+
+        function renderWeekNavigation() {
+            const monthKey = getMonthKey();
+            const lockedMap = appState.lockedWeeks[monthKey] || {};
+
+            [1, 2, 3, 4].forEach(w => {
+                const btn = document.getElementById(`btn-week-${w}`);
+                const isCurrent = appState.currentWeekNum === w;
+                const isLocked = !!lockedMap[w];
+
+                let classes = "px-3.5 py-1.5 text-xs font-bold rounded-lg transition border flex items-center gap-1.5 ";
+                if (isCurrent) {
+                    classes += "bg-purple-600 text-white border-purple-400 neon-border-purple";
+                } else {
+                    classes += "bg-purple-950/40 text-purple-300 border-purple-800 hover:bg-purple-900/60";
+                }
+                btn.className = classes;
+                btn.innerHTML = `${isLocked ? '<i class="fa-solid fa-lock text-red-400 text-[10px]"></i>' : ''} Semana ${w}`;
+            });
+
+            const isLocked = !!lockedMap[appState.currentWeekNum];
+            const lockBtn = document.getElementById('lock-btn');
+            const lockIcon = document.getElementById('lock-icon');
+            const lockText = document.getElementById('lock-text');
+            const lockedBanner = document.getElementById('locked-banner');
+
+            document.getElementById('week-title').innerText = `Semana ${appState.currentWeekNum}`;
+
+            if (isLocked) {
+                lockBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 border border-red-500/50 bg-red-950/60 text-red-300 hover:bg-red-900/70";
+                lockIcon.className = "fa-solid fa-lock";
+                lockText.innerText = "Semana Encerrada";
+                lockedBanner.classList.remove('hidden');
+            } else {
+                lockBtn.className = "px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-2 border border-green-500/50 bg-green-950/40 text-green-300 hover:bg-green-900/60";
+                lockIcon.className = "fa-solid fa-lock-open";
+                lockText.innerText = "Encerrar Semana";
+                lockedBanner.classList.add('hidden');
+            }
+        }
+
+        function switchWeek(w) {
+            appState.currentWeekNum = w;
+            renderWeekNavigation();
+            renderTable();
+        }
+
+        function toggleWeekLock() {
+            const monthKey = getMonthKey();
+            if (!appState.lockedWeeks[monthKey]) appState.lockedWeeks[monthKey] = {};
+            const curr = appState.currentWeekNum;
+            appState.lockedWeeks[monthKey][curr] = !appState.lockedWeeks[monthKey][curr];
+            saveLocalStorage();
+            renderWeekNavigation();
+            renderTable();
+        }
+
+        function renderTable() {
+            const { processedWeeks, sortedMetas } = calculateAllocations();
+            const weekData = processedWeeks[appState.currentWeekNum] || [];
+            const monthKey = getMonthKey();
+            const isLocked = !!(appState.lockedWeeks[monthKey] && appState.lockedWeeks[monthKey][appState.currentWeekNum]);
+
+            // Header da Tabela
+            const theadRow = document.getElementById('table-header-row');
+            theadRow.innerHTML = `
+                <th class="p-2.5">Dia</th>
+                <th class="p-2.5 text-green-400 font-bold">Trabalho <span class="block text-[9px] text-gray-400 font-normal">(Entrada)</span></th>
+                <th class="p-2.5">Alimentação</th>
+                <th class="p-2.5">Gasolina</th>
+                <th class="p-2.5">Óleo</th>
+                <th class="p-2.5 text-yellow-300">Dinheiro Livre</th>
+                ${sortedMetas.filter(m => !m.isReserva).map(m => `<th class="p-2.5 text-cyan-400">${m.name}</th>`).join('')}
+            `;
+
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = '';
+
+            let totalTrabalho = 0, totalAlim = 0, totalGas = 0, totalOleo = 0, totalLivre = 0;
+            let totalsMetas = {};
+            sortedMetas.forEach(m => totalsMetas[m.id] = 0);
+
+            weekData.forEach((row, idx) => {
+                totalTrabalho += row.trabalho;
+                totalAlim += row.alimentacao;
+                totalGas += row.gasolina;
+                totalOleo += row.oleo;
+                totalLivre += row.livre;
+
+                sortedMetas.forEach(m => {
+                    totalsMetas[m.id] += (row.metas[m.id] || 0);
+                });
+
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-purple-900/20 transition";
+
+                tr.innerHTML = `
+                    <td class="p-2.5 font-bold text-purple-200">${row.dateStr}</td>
+                    <td class="p-2.5">
+                        <input type="number" step="10" min="0" 
+                            value="${row.trabalho || ''}" 
+                            placeholder="0"
+                            ${isLocked ? 'disabled' : ''}
+                            onchange="updateTrabalhoValue(${appState.currentWeekNum}, ${idx}, this.value)"
+                            class="w-20 bg-purple-950/90 border border-purple-600/70 rounded px-2 py-1 text-xs text-green-400 font-bold outline-none focus:border-green-400 text-center ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}">
+                    </td>
+                    <td class="p-2.5 text-gray-300">${formatBRL(row.alimentacao)}</td>
+                    <td class="p-2.5 text-gray-300">${formatBRL(row.gasolina)}</td>
+                    <td class="p-2.5 text-gray-300">${formatBRL(row.oleo)}</td>
+                    <td class="p-2.5 text-yellow-300 font-bold">${formatBRL(row.livre)}</td>
+                    ${sortedMetas.filter(m => !m.isReserva).map(m => `
+                        <td class="p-2.5 text-cyan-400 font-bold">${formatBRL(row.metas[m.id] || 0)}</td>
+                    `).join('')}
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Linha de Totais da Semana
+            const tfoot = document.getElementById('table-footer-row');
+            tfoot.innerHTML = `
+                <td class="p-2.5">TOTAL SEMANA</td>
+                <td class="p-2.5 text-green-400 font-extrabold">${formatBRL(totalTrabalho)}</td>
+                <td class="p-2.5">${formatBRL(totalAlim)}</td>
+                <td class="p-2.5">${formatBRL(totalGas)}</td>
+                <td class="p-2.5">${formatBRL(totalOleo)}</td>
+                <td class="p-2.5 text-yellow-300">${formatBRL(totalLivre)}</td>
+                ${sortedMetas.filter(m => !m.isReserva).map(m => `
+                    <td class="p-2.5 text-cyan-400">${formatBRL(totalsMetas[m.id] || 0)}</td>
+                `).join('')}
+            `;
+        }
+
+        function updateTrabalhoValue(week, dayIndex, value) {
+            const monthKey = getMonthKey();
+            if (!appState.entries[monthKey]) appState.entries[monthKey] = {};
+            if (!appState.entries[monthKey][week]) appState.entries[monthKey][week] = [];
+
+            appState.entries[monthKey][week][dayIndex] = {
+                trabalho: parseFloat(value) || 0
+            };
+
+            saveLocalStorage();
+            renderApp();
+        }
+
+        function renderMetasSidebar() {
+            const { accumulatedMetaValues, sortedMetas, metaGastosPrioritariosMes, prioridadesMesGarantidas, totalEntradasMes } = calculateAllocations();
+            
+            const guaranteeBox = document.getElementById('priorities-guarantee-box');
+            if (prioridadesMesGarantidas) {
+                guaranteeBox.className = "p-3 rounded-xl border border-green-500/40 bg-green-950/30 text-xs text-green-300 space-y-1";
+                guaranteeBox.innerHTML = `
+                    <div class="flex items-center gap-1.5 font-bold">
+                        <i class="fa-solid fa-circle-check text-green-400"></i>
+                        <span>Prioridades do Mês Garantidas!</span>
+                    </div>
+                    <p class="text-[11px] text-gray-300">Valor de ${formatBRL(metaGastosPrioritariosMes)} totalmente coberto. Os excedentes estão <strong>liberados para suas metas</strong>.</p>
+                `;
+            } else {
+                const faltaCobrir = Math.max(0, metaGastosPrioritariosMes - totalEntradasMes);
+                guaranteeBox.className = "p-3 rounded-xl border border-yellow-500/40 bg-yellow-950/30 text-xs text-yellow-300 space-y-1";
+                guaranteeBox.innerHTML = `
+                    <div class="flex items-center gap-1.5 font-bold">
+                        <i class="fa-solid fa-shield-halved text-yellow-400"></i>
+                        <span>Garantindo Gastos Prioritários</span>
+                    </div>
+                    <p class="text-[11px] text-gray-300">Falta arrecadar <strong>${formatBRL(faltaCobrir)}</strong> no mês para liberar o repasse para as metas de investimento.</p>
+                `;
+            }
+
+            const container = document.getElementById('metas-progress-cards');
+            container.innerHTML = '';
+
+            sortedMetas.forEach(m => {
+                const guardado = accumulatedMetaValues[m.id] || 0;
+                const falta = Math.max(0, m.targetVal - guardado);
+                const pct = Math.min(100, Math.round((guardado / m.targetVal) * 100));
+
+                let iconName = m.icon || 'fa-bullseye';
+
+                const card = document.createElement('div');
+                card.className = "bg-purple-950/60 p-3 rounded-xl border border-purple-800/70 space-y-2";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid ${iconName} text-cyan-400 text-sm"></i>
+                            <div>
+                                <h4 class="font-bold text-white text-xs">${m.name}</h4>
+                                <span class="text-[10px] text-purple-300">PRIORIDADE ${m.priority} • Meta: ${formatBRL(m.targetVal)}</span>
+                            </div>
+                        </div>
+                        <span class="text-xs font-bold text-cyan-400 font-orbitron">${pct}%</span>
+                    </div>
+
+                    <div class="flex justify-between items-center text-[11px]">
+                        <span class="text-cyan-300 font-bold">Guardado: ${formatBRL(guardado)}</span>
+                        <span class="text-yellow-400 font-bold">Falta: ${formatBRL(falta)}</span>
+                    </div>
+
+                    <div class="w-full bg-purple-950 rounded-full h-2 overflow-hidden border border-purple-800">
+                        <div class="bg-gradient-to-r from-cyan-500 to-purple-500 h-2 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderCustosSummary() {
+            const list = document.getElementById('gastos-summary-list');
+            list.innerHTML = '';
+
+            let total = 0;
+            appState.gastos.forEach(g => {
+                let approxMensal = g.val;
+                if (g.type === 'diario') approxMensal = g.val * 20;
+                if (g.type === 'semanal') approxMensal = g.val * 4;
+
+                total += approxMensal;
+
+                const item = document.createElement('div');
+                item.className = "flex justify-between items-center text-purple-200/90 py-1 border-b border-purple-900/40";
+                item.innerHTML = `
+                    <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle text-[6px] ${g.isPriority !== false ? 'text-green-400' : 'text-yellow-400'}"></i>
+                        ${g.name} (${g.desc || ''})
+                    </span>
+                    <span class="font-bold text-white">${formatBRL(approxMensal)}</span>
+                `;
+                list.appendChild(item);
+            });
+
+            document.getElementById('gastos-summary-total').innerText = formatBRL(total);
+        }
+
+        function renderDashboard() {
+            const { processedWeeks, totalEntradasMes } = calculateAllocations();
+            document.getElementById('grand-total-earned').innerText = formatBRL(totalEntradasMes);
+
+            const container = document.getElementById('weekly-deficit-cards');
+            container.innerHTML = '';
+
+            const weeklyTarget = 600;
+            const chartEarned = [];
+            let totalDeficit = 0;
+
+            [1, 2, 3, 4].forEach(w => {
+                const weekRows = processedWeeks[w] || [];
+                const earned = weekRows.reduce((acc, r) => acc + r.trabalho, 0);
+                chartEarned.push(earned);
+
+                const deficit = Math.max(0, weeklyTarget - earned);
+                totalDeficit += deficit;
+
+                const card = document.createElement('div');
+                card.className = `p-3 rounded-xl border ${earned >= weeklyTarget ? 'bg-green-950/40 border-green-500/50' : 'bg-purple-950/50 border-purple-800/60'}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-center mb-1">
+                        <span class="text-xs font-bold text-purple-200">Semana ${w}</span>
+                        <span class="text-[9px] px-2 py-0.5 rounded font-bold ${earned >= weeklyTarget ? 'bg-green-900/70 text-green-300 border border-green-500/30' : 'bg-yellow-900/70 text-yellow-300 border border-yellow-500/30'}">
+                            ${earned >= weeklyTarget ? 'Meta Atingida' : 'Abaixo da Meta'}
+                        </span>
+                    </div>
+                    <div class="text-xl font-black text-white font-orbitron">${formatBRL(earned)}</div>
+                    <div class="text-[11px] text-gray-300 mt-1">
+                        ${deficit > 0 ? `<span class="text-red-400 font-bold">Faltou: ${formatBRL(deficit)}</span>` : '<span class="text-green-400 font-bold">Sem déficit</span>'}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            const diag = document.getElementById('diagnostic-card');
+            diag.className = `p-4 rounded-xl border ${totalDeficit > 0 ? 'bg-yellow-950/40 border-yellow-500/50' : 'bg-green-950/40 border-green-500/50'}`;
+            diag.innerHTML = `
+                <div class="flex items-center gap-2 text-sm font-bold ${totalDeficit > 0 ? 'text-yellow-300' : 'text-green-300'}">
+                    <i class="fa-solid ${totalDeficit > 0 ? 'fa-triangle-exclamation' : 'fa-circle-check'}"></i>
+                    <span>${totalDeficit > 0 ? 'Diagnóstico de Desempenho' : 'Excelente Desempenho!'}</span>
+                </div>
+                <p class="text-xs text-gray-300">
+                    ${totalDeficit > 0 
+                        ? `Ainda faltam <strong>${formatBRL(totalDeficit)}</strong> para atingir a meta ideal do mês. Tente compensar com cerca de +${formatBRL(Math.ceil(totalDeficit / 4))} nas semanas abertas.` 
+                        : 'Você atingiu e superou a estimativa mensal! Seus gastos e metas prioritárias estão totalmente garantidos.'}
+                </p>
+            `;
+
+            renderWeeklyChart(chartEarned);
+        }
+
+        function renderWeeklyChart(dataEarned) {
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana 4'],
+                    datasets: [
+                        {
+                            label: 'Entrada Real (R$)',
+                            data: dataEarned,
+                            backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                            borderColor: '#22c55e',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Meta Prevista (R$)',
+                            data: [600, 600, 600, 600],
+                            type: 'line',
+                            borderColor: '#a855f7',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            pointBackgroundColor: '#a855f7'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: '#e5e7eb', font: { size: 10 } } }
+                    },
+                    scales: {
+                        x: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { display: false } },
+                        y: { ticks: { color: '#9ca3af', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.05)' } }
+                    }
+                }
+            });
+        }
+
+        // ================= MODAL GASTOS COTIDIANOS =================
+        function openGastosModal() {
+            renderGastosCRUDList();
+            document.getElementById('modal-gastos').classList.remove('hidden');
+        }
+        function closeGastosModal() {
+            document.getElementById('modal-gastos').classList.add('hidden');
+            cancelEditGasto();
+        }
+        function renderGastosCRUDList() {
+            const list = document.getElementById('gastos-crud-list');
+            list.innerHTML = '';
+
+            appState.gastos.forEach((g) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-2.5 hover:bg-purple-900/40 rounded text-xs gap-2";
+                item.innerHTML = `
+                    <div>
+                        <span class="font-bold text-white text-xs">${g.name}</span>
+                        <span class="text-cyan-400 font-bold ml-2">R$ ${g.val.toFixed(2)}</span>
+                        <span class="text-purple-300 text-[10px] block">Tipo: ${g.type} (${g.desc || ''})</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="editGastoItem('${g.id}')" class="p-1 text-cyan-400 hover:text-white"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button onclick="deleteGastoItem('${g.id}')" class="p-1 text-red-400 hover:text-red-200"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        function saveGastoItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('gasto-id').value;
+            const name = document.getElementById('gasto-nome').value;
+            const val = parseFloat(document.getElementById('gasto-valor').value) || 0;
+            const type = document.getElementById('gasto-freq').value;
+            const desc = document.getElementById('gasto-desc').value;
+
+            if (id) {
+                const idx = appState.gastos.findIndex(g => g.id === id);
+                if (idx !== -1) {
+                    appState.gastos[idx] = { ...appState.gastos[idx], name, val, type, desc };
+                }
+            } else {
+                const newId = 'g_' + Date.now();
+                appState.gastos.push({ id: newId, name, val, type, desc, isPriority: true });
+            }
+
+            saveLocalStorage();
+            cancelEditGasto();
+            renderGastosCRUDList();
+            renderApp();
+        }
+        function editGastoItem(id) {
+            const g = appState.gastos.find(item => item.id === id);
+            if (!g) return;
+            document.getElementById('gasto-id').value = g.id;
+            document.getElementById('gasto-nome').value = g.name;
+            document.getElementById('gasto-valor').value = g.val;
+            document.getElementById('gasto-freq').value = g.type;
+            document.getElementById('gasto-desc').value = g.desc || '';
+        }
+        function deleteGastoItem(id) {
+            if (confirm("Remover este gasto cotidianamente cadastrado?")) {
+                appState.gastos = appState.gastos.filter(g => g.id !== id);
+                saveLocalStorage();
+                renderGastosCRUDList();
+                renderApp();
+            }
+        }
+        function cancelEditGasto() {
+            document.getElementById('form-gasto').reset();
+            document.getElementById('gasto-id').value = '';
+        }
+
+        // ================= MODAL RECOMPENSA =================
+        function openRecompensaModal() {
+            const conf = appState.recompensaConfig || DEFAULT_RECOMPENSA_CONFIG;
+            document.getElementById('rec-val-min1').value = conf.minVal1;
+            document.getElementById('rec-val-1').value = conf.tier1Val;
+            document.getElementById('rec-val-min2').value = conf.minVal2;
+            document.getElementById('rec-val-2').value = conf.tier2Val;
+            document.getElementById('modal-recompensa').classList.remove('hidden');
+        }
+        function closeRecompensaModal() {
+            document.getElementById('modal-recompensa').classList.add('hidden');
+        }
+        function saveRecompensaConfig(e) {
+            e.preventDefault();
+            appState.recompensaConfig = {
+                minVal1: parseFloat(document.getElementById('rec-val-min1').value) || 200,
+                tier1Val: parseFloat(document.getElementById('rec-val-1').value) || 10,
+                minVal2: parseFloat(document.getElementById('rec-val-min2').value) || 400,
+                tier2Val: parseFloat(document.getElementById('rec-val-2').value) || 20
+            };
+            saveLocalStorage();
+            closeRecompensaModal();
+            renderApp();
+        }
+
+        // ================= MODAL METAS & REORDENAÇÃO ▲ ▼ =================
+        function openMetasModal() {
+            renderMetasCRUDList();
+            document.getElementById('modal-metas').classList.remove('hidden');
+        }
+        function closeMetasModal() {
+            document.getElementById('modal-metas').classList.add('hidden');
+            cancelEditMeta();
+        }
+        function renderMetasCRUDList() {
+            const list = document.getElementById('metas-crud-list');
+            list.innerHTML = '';
+
+            appState.metas.sort((a, b) => a.priority - b.priority);
+
+            appState.metas.forEach((m, index) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-2.5 hover:bg-purple-900/40 rounded text-xs gap-2";
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <div class="flex flex-col gap-0.5">
+                            <button onclick="moveMetaPriority(${index}, -1)" ${index === 0 ? 'disabled class="opacity-20"' : 'class="hover:text-cyan-400 text-purple-300"'} title="Subir Prioridade">
+                                <i class="fa-solid fa-chevron-up text-[10px]"></i>
+                            </button>
+                            <button onclick="moveMetaPriority(${index}, 1)" ${index === appState.metas.length - 1 ? 'disabled class="opacity-20"' : 'class="hover:text-cyan-400 text-purple-300"'} title="Descer Prioridade">
+                                <i class="fa-solid fa-chevron-down text-[10px]"></i>
+                            </button>
+                        </div>
+                        <div>
+                            <span class="font-bold text-white text-xs">${m.name}</span>
+                            <span class="text-green-400 font-bold ml-2">R$ ${m.targetVal.toFixed(2)}</span>
+                            <span class="text-purple-300 text-[10px] block">Prioridade ${m.priority} ${m.isReserva ? '(Reserva Auto)' : ''}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="editMetaItem('${m.id}')" class="p-1 text-cyan-400 hover:text-white"><i class="fa-solid fa-pen-to-square"></i></button>
+                        ${!m.isReserva ? `<button onclick="deleteMetaItem('${m.id}')" class="p-1 text-red-400 hover:text-red-200"><i class="fa-solid fa-trash"></i></button>` : ''}
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+        function moveMetaPriority(index, direction) {
+            const targetIndex = index + direction;
+            if (targetIndex < 0 || targetIndex >= appState.metas.length) return;
+
+            const temp = appState.metas[index];
+            appState.metas[index] = appState.metas[targetIndex];
+            appState.metas[targetIndex] = temp;
+
+            appState.metas.forEach((m, idx) => m.priority = idx + 1);
+
+            saveLocalStorage();
+            renderMetasCRUDList();
+            renderApp();
+        }
+        function saveMetaItem(e) {
+            e.preventDefault();
+            const id = document.getElementById('meta-id').value;
+            const name = document.getElementById('meta-nome').value;
+            const targetVal = parseFloat(document.getElementById('meta-valor').value) || 0;
+            const deadline = document.getElementById('meta-data').value;
+            const icon = document.getElementById('meta-icone').value;
+
+            if (id) {
+                const idx = appState.metas.findIndex(m => m.id === id);
+                if (idx !== -1) {
+                    appState.metas[idx] = { ...appState.metas[idx], name, targetVal, deadline, icon };
+                }
+            } else {
+                const newId = 'm_' + Date.now();
+                const nextPriority = appState.metas.length + 1;
+                appState.metas.push({ id: newId, name, targetVal, deadline, priority: nextPriority, icon, isReserva: false });
+            }
+
+            saveLocalStorage();
+            cancelEditMeta();
+            renderMetasCRUDList();
+            renderApp();
+        }
+        function editMetaItem(id) {
+            const m = appState.metas.find(item => item.id === id);
+            if (!m) return;
+            document.getElementById('meta-id').value = m.id;
+            document.getElementById('meta-nome').value = m.name;
+            document.getElementById('meta-valor').value = m.targetVal;
+            document.getElementById('meta-data').value = m.deadline || '';
+            document.getElementById('meta-icone').value = m.icon || 'fa-bullseye';
+        }
+        function deleteMetaItem(id) {
+            if (confirm("Remover esta meta permanentemente?")) {
+                appState.metas = appState.metas.filter(m => m.id !== id);
+                appState.metas.forEach((m, idx) => m.priority = idx + 1);
+                saveLocalStorage();
+                renderMetasCRUDList();
+                renderApp();
+            }
+        }
+        function cancelEditMeta() {
+            document.getElementById('form-meta').reset();
+            document.getElementById('meta-id').value = '';
+        }
+    </script>
+</body>
+</html>
